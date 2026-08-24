@@ -218,7 +218,7 @@ public class CreateEditNewsFormTest extends BaseE2eEspressoTest{
     }
 
     @Story("Работа элементов формы")
-    @Description("Переключение у создаваемой новости тумблера на «Не активна," +
+    @Description("Переключение у создаваемой новости тумблера на «Не активна»," +
             " форма сохраняется и происходит переход на экран «Панель управления»")
     // Тест падает из-за того, что тумблер неактивен
     @Test
@@ -242,7 +242,7 @@ public class CreateEditNewsFormTest extends BaseE2eEspressoTest{
     }
 
     @Story("Работа элементов формы")
-    @Description("Переключение у редактируемой новости тумблера на «Не активна," +
+    @Description("Переключение у редактируемой новости тумблера на «Не активна»," +
             " форма сохраняется и происходит переход на экран «Панель управления»")
     @Test
     public void shouldSavingEditingInactiveNews() {
