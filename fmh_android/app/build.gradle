@@ -13,12 +13,13 @@ android {
 
     defaultConfig {
         applicationId "ru.edu.qamid"
-        minSdk 23
+        minSdk 26
         targetSdk = 36
         versionCode 14
         versionName "1.0.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "io.qameta.allure.android.runners.AllureAndroidJUnitRunner"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -36,19 +37,31 @@ android {
         buildConfig true
     }
 
+
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", '"https://students.netoservices.ru/qamid-diplom-backend/"'
+            buildConfigField "long", "SPLASH_DELAY_MS", "3000L"
         }
         debug {
             buildConfigField "String", "BASE_URL", '"https://students.netoservices.ru/qamid-diplom-backend/"'
+            buildConfigField "long", "SPLASH_DELAY_MS", "0L"
+        }
+    }
+}
+
+tasks.register('clearTestData') {
+    doLast {
+        exec {
+            commandLine 'adb', 'shell', 'pm', 'clear', 'ru.edu.qamid'
         }
     }
 }
 
 dependencies {
+
     def retrofit_version = "3.0.0"
     def okhttp_logging_version = "4.12.0"
     def fragment_version = "1.8.9"
@@ -62,6 +75,8 @@ dependencies {
     def hilt_version = "2.57.2"
     def gson_version = "2.13.1"
     def swipe_refresh_version = "1.2.0"
+    def espresso_version = "3.7.0"
+    def allure_kotlin_version = "2.4.0"
 
     implementation "androidx.core:core-ktx:1.18.0"
     implementation "androidx.appcompat:appcompat:1.7.1"
@@ -88,12 +103,17 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
+    implementation "androidx.test.espresso:espresso-idling-resource:$espresso_version"
+
     androidTestImplementation "androidx.test.ext:junit:1.3.0"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.7.0"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation "androidx.test:runner:1.7.0"
     androidTestImplementation "androidx.test:rules:1.7.0"
-    androidTestImplementation "androidx.test.espresso:espresso-intents:3.7.0"
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.7.0"
+    androidTestImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    androidTestImplementation "io.qameta.allure:allure-kotlin-android:$allure_kotlin_version"
+
     kaptAndroidTest "com.google.dagger:hilt-compiler:$hilt_version"
+
 }

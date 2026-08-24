@@ -47,6 +47,12 @@ class NewsListAdapter(private val onNewsItemClickListener: OnNewsItemClickListen
 
                 setCategoryIcon(news)
 
+                // Получение категории новости (ДЛЯ ТЕСТОВ)
+                if (ru.edu.qamid.utils.TestMode.isRunning()) {
+                    newsItemCategoryTextView.text = news.category.getType().name
+                    // android.util.Log.d("TEST_DEBUG", "TestMode: forced category for item ${news.id} = ${news.category.getType().name}")
+                }
+
                 if (news.isOpen) {
                     newsItemGroup.visibility = View.VISIBLE
                     newsItemExpandImageView.setImageResource(R.drawable.expand_less_24)

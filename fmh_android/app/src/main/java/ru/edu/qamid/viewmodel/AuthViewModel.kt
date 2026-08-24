@@ -13,6 +13,7 @@ import ru.edu.qamid.exceptions.LostConnectException
 import ru.edu.qamid.exceptions.UnknownException
 import ru.edu.qamid.repository.authRepository.AuthRepository
 import ru.edu.qamid.repository.userRepository.UserRepository
+import ru.edu.qamid.utils.EspressoIdlingResource
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,20 +58,29 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Выполняет проверку авторизации и уведомляет UI о статусе (авторизован/не авторизован).
+     * Гарантированно освобождает EspressoIdlingResource через finally.
+     */
     fun authorization() {
         viewModelScope.launch {
-            val authState = appAuth.authState
-            if (authState == null) {
-                nonAuthorizedEvent.emit(Unit)
-            } else {
-                try {
+            EspressoIdlingResource.increment()
+            try {
+                val authState = appAuth.authState
+                if (authState == null) {
+                    nonAuthorizedEvent.emit(Unit)
+                } else {
+                    // Если authState есть, пробуем получить профиль
                     userRepository.getUserInfo()
                     authorizedEvent.emit(Unit)
-                } catch (e: AuthorizationException) {
-                    nonAuthorizedEvent.emit(Unit)
-                } catch (e: UnknownException) {
-                    e.printStackTrace()
                 }
+            } catch (e: AuthorizationException) {
+                // Даже если тут ошибка, decrement сработает в finally
+                nonAuthorizedEvent.emit(Unit)
+            } catch (e: UnknownException) {
+                e.printStackTrace()
+            } finally {
+                EspressoIdlingResource.decrement()
             }
         }
     }

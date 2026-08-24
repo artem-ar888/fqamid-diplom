@@ -12,6 +12,7 @@ import ru.edu.qamid.dto.User
 import ru.edu.qamid.repository.newsRepository.NewsRepository
 import ru.edu.qamid.repository.userRepository.UserRepository
 import ru.edu.qamid.ui.viewdata.NewsViewData
+import ru.edu.qamid.utils.EspressoIdlingResource
 import ru.edu.qamid.utils.Utils
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -81,12 +82,19 @@ class NewsViewModel @Inject constructor(
     }
 
     private suspend fun internalOnRefresh() {
+
+        EspressoIdlingResource.increment()
+
         try {
             newsRepository.refreshNews()
             newsListUpdatedEvent.emit(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
             loadNewsExceptionEvent.emit(Unit)
+        } finally {
+
+            EspressoIdlingResource.decrement()
+
         }
     }
 

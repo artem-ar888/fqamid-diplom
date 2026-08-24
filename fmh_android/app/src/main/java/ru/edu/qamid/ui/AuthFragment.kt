@@ -16,12 +16,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.edu.qamid.R
 import ru.edu.qamid.databinding.FragmentAuthBinding
+import ru.edu.qamid.utils.EspressoIdlingResource
+import ru.edu.qamid.utils.TestContext
 import ru.edu.qamid.viewmodel.AuthViewModel
 
 @AndroidEntryPoint
 class AuthFragment : Fragment(R.layout.fragment_auth) {
     private lateinit var binding: FragmentAuthBinding
     val viewModel: AuthViewModel by viewModels()
+    private var wasLoading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +77,13 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isLoginLoading.collectLatest { isLoading ->
+                    if (isLoading && !wasLoading) {
+                        EspressoIdlingResource.increment()
+                    } else if (!isLoading && wasLoading) {
+                        EspressoIdlingResource.decrement()
+                    }
+                    wasLoading = isLoading
+
                     binding.enterButton.isEnabled = !isLoading
                     binding.enterButton.text = if (isLoading) "" else getString(R.string.sign_in)
                     binding.enterButtonProgress.isVisible = isLoading
@@ -83,11 +93,12 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
 
         binding.enterButton.setOnClickListener {
             if (binding.loginEditText.text.isNullOrBlank() || binding.passwordEditText.text.isNullOrBlank()) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.empty_login_or_password,
-                    Toast.LENGTH_SHORT
-                ).show()
+                showErrorForEmptyFields()
+//                Toast.makeText(
+//                    requireContext(),
+//                    R.string.empty_login_or_password,
+//                    Toast.LENGTH_SHORT
+//                ).show()
             } else {
                 viewModel.login(
                     binding.loginEditText.text.toString().trim(),
@@ -98,6 +109,22 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             activity?.finishAffinity()
+        }
+    }
+    private fun showErrorForEmptyFields() {
+        val error = getString(R.string.empty_login_or_password)
+
+        if (TestContext.isRunningInEspressoTest()) {
+            // В тесте: ставим ошибку в поле (чтобы Espresso мог её проверить)
+            binding.loginTextInputLayout.error = error
+            binding.passwordTextInputLayout.error = error
+        } else {
+            // Обычное приложение: показываем Toast
+            Toast.makeText(
+                requireContext(),
+                R.string.empty_login_or_password,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

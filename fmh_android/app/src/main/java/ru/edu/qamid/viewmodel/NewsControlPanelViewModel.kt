@@ -11,6 +11,7 @@ import ru.edu.qamid.dto.NewsWithCategory
 import ru.edu.qamid.dto.User
 import ru.edu.qamid.repository.newsRepository.NewsRepository
 import ru.edu.qamid.repository.userRepository.UserRepository
+import ru.edu.qamid.utils.EspressoIdlingResource
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,11 +64,18 @@ class NewsControlPanelViewModel @Inject constructor(
     }
 
     private suspend fun internalOnRefresh() {
+
+        EspressoIdlingResource.increment()
+
         try {
             newsRepository.refreshNews()
         } catch (e: Exception) {
             e.printStackTrace()
             loadNewsExceptionEvent.emit(Unit)
+        } finally {
+
+            EspressoIdlingResource.decrement()
+
         }
     }
 

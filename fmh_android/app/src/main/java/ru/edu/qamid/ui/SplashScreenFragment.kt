@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import ru.edu.qamid.BuildConfig
 import ru.edu.qamid.R
 import ru.edu.qamid.api.UserApi
 import ru.edu.qamid.auth.AppAuth
@@ -147,9 +148,18 @@ class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
             }
         }
 
+//        lifecycleScope.launch {
+//            authViewModel.authorizedEvent.collectLatest {
+//                findNavController().navigate(R.id.action_splashScreenFragment_to_mainFragment)
+//            }
+//        }
+        // Защита от двойной навигации и краша, если authorizedEvent прилетит,
+        // когда SplashScreenFragment уже не является текущим экраном (например, из‑за forceNavigateToAuth в тестах или поворота экрана).
         lifecycleScope.launch {
-            authViewModel.authorizedEvent.collectLatest {
-                findNavController().navigate(R.id.action_splashScreenFragment_to_mainFragment)
+            authViewModel.authorizedEvent.collectLatest { _ ->
+                if (findNavController().currentDestination?.id == R.id.splashScreenFragment) {
+                    findNavController().navigate(R.id.action_splashScreenFragment_to_mainFragment)
+                }
             }
         }
     }
@@ -170,6 +180,7 @@ class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
                 binding.splashScreenCircularProgressIndicator.trackColor =
                     ContextCompat.getColor(requireContext(), R.color.splash_screen_title_1)
             }
+
             R.drawable.background_splash_screen_title_2 -> {
                 binding.splashScreenCircularProgressIndicator.setIndicatorColor(
                     ContextCompat.getColor(
@@ -180,6 +191,7 @@ class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
                 binding.splashScreenCircularProgressIndicator.trackColor =
                     ContextCompat.getColor(requireContext(), R.color.splash_screen_title_2)
             }
+
             R.drawable.background_splash_screen_title_3 -> {
                 binding.splashScreenCircularProgressIndicator.setIndicatorColor(
                     ContextCompat.getColor(
@@ -190,6 +202,7 @@ class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
                 binding.splashScreenCircularProgressIndicator.trackColor =
                     ContextCompat.getColor(requireContext(), R.color.splash_screen_title_3)
             }
+
             R.drawable.background_splash_screen_title_4 -> {
                 binding.splashScreenCircularProgressIndicator.setIndicatorColor(
                     ContextCompat.getColor(
@@ -200,6 +213,7 @@ class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
                 binding.splashScreenCircularProgressIndicator.trackColor =
                     ContextCompat.getColor(requireContext(), R.color.splash_screen_title_4)
             }
+
             R.drawable.background_splash_screen_title_5 -> {
                 binding.splashScreenCircularProgressIndicator.setIndicatorColor(
                     ContextCompat.getColor(
@@ -210,6 +224,7 @@ class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
                 binding.splashScreenCircularProgressIndicator.trackColor =
                     ContextCompat.getColor(requireContext(), R.color.splash_screen_title_5)
             }
+
             R.drawable.background_splash_screen_title_6 -> {
                 binding.splashScreenCircularProgressIndicator.setIndicatorColor(
                     ContextCompat.getColor(
@@ -232,7 +247,10 @@ class SplashScreenFragment : Fragment(R.layout.fragment_splash_screen) {
         }
 
         lifecycleScope.launch {
-            delay(3_000)
+            // Для дебаг-режима сделаем без SplashScreen
+//            EspressoIdlingResource.increment()
+            delay(BuildConfig.SPLASH_DELAY_MS)
+//            EspressoIdlingResource.decrement()
             authViewModel.authorization()
         }
     }
