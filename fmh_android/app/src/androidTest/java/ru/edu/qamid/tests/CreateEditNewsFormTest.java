@@ -86,7 +86,7 @@ public class CreateEditNewsFormTest extends BaseE2eEspressoTest{
     }
 
     @Story("Успешное сохранение новости")
-    @Description("Содание новости прошло успешно, в результате открывается экран «Панель управления»")
+    @Description("Создание новости прошло успешно, в результате открывается экран «Панель управления»")
     @Test
     public void shouldSavingCreatingNewsAndShowsNewsCPScreen() {
         String category = getCategoryName(randomIntBetween(1, 8));
@@ -109,7 +109,7 @@ public class CreateEditNewsFormTest extends BaseE2eEspressoTest{
     }
 
     @Story("Ошибки сохранения новости")
-    @Description("Содание новости с пустыми полями невозможно, в незаполненных полях отображаются ошибки")
+    @Description("Создание новости с пустыми полями невозможно, в незаполненных полях отображаются ошибки")
     @Test
     public void shouldNotSavingEmptyForm() {
         startFromCreateNewsForm()
@@ -254,7 +254,7 @@ public class CreateEditNewsFormTest extends BaseE2eEspressoTest{
     }
 
     @Story("Ошибки сохранения новости")
-    @Description("Содание новости с прошедшей датой публикации невозможно, отображается форма «Создание новости»")
+    @Description("Создание новости с прошедшей датой публикации невозможно, отображается форма «Создание новости»")
     // Тест падает из-за того, что приложение не запрещает создание новости с прошедшим временем
     @Test
     public void shouldNotCreateNewsWithPastDateAndStayOnForm() {
